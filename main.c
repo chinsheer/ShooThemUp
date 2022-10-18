@@ -5,34 +5,41 @@
 
 Vector2 myAmmoShape[9] = {{0, -1}};
 
-struct monster
-{
-    struct Vector2 position;
-    struct Vector2 shape[81];
-};
-
-struct plane
-{
-    struct Vector2 position;
-    struct Vector2 shape[25];
-    int shootCD;
-
-};
-
-struct ammo
+typedef struct ammo
 {
     int alive;
-    struct Vector2 position;
-    struct Vector2 shape[9];
-    struct Vector2 direction;
+    Vector2 position;
+    Vector2 shape[9];
+    Vector2 direction;
     float rad;
     int dmg;
     int speed;
     int size;
-};
+} ammo;
 
-struct ammo shoot(Vector2 pos, int speed, int dmg, float angle, int size){
-    struct ammo temp;
+typedef struct monster
+{
+    Vector2 position;
+    Vector2 shape[81];
+} monster;
+
+typedef struct object_buffer
+{
+    int last;
+    ammo buffer[100];
+} object_buffer;
+
+typedef struct plane
+{
+    Vector2 position;
+    Vector2 shape[25];
+    int shootCD;
+    object_buffer ammo_buffer;
+
+} plane;
+
+ammo shoot(Vector2 pos, int speed, int dmg, float angle, int size){
+    ammo temp;
     temp.alive = 1;
     memset(&(temp.shape), 0, sizeof(temp.shape));
     memcpy(&(temp.shape), myAmmoShape, sizeof(Vector2)*1);
@@ -48,19 +55,23 @@ struct ammo shoot(Vector2 pos, int speed, int dmg, float angle, int size){
     return temp;
 }
 
-void draw_ammo(struct ammo *buffer, int *counter){ //draw bullet.
+void draw_ammo(plane *p){ //draw bullet.
     int i = 0;
-    while(i < *counter){
+    ammo *buffer = p->ammo_buffer.buffer;
+    while(i < p->ammo_buffer.last){
         if(buffer->alive){
+            //check if bullet is out of windows
             if(buffer->position.y <= 0 || 
             buffer->position.y > 900 || 
             buffer->position.x > 1600 || 
             buffer->position.x < 0){
                 buffer->alive = 0;
             } else{
+                //change bullet position
                 buffer->position = Vector2Add(buffer->position, Vector2Scale(buffer->direction, buffer->speed));
+                //draw bullet and it shape
                 DrawRectangleV(buffer->position, Vector2Scale(Vector2One(), buffer->size), BLACK);
-                struct Vector2 *drawShape = buffer->shape;
+                Vector2 *drawShape = buffer->shape;
                 while(!Vector2Equals(*drawShape, Vector2Zero())){
                     DrawRectangleV(Vector2Add(buffer->position, Vector2Scale(*drawShape, buffer->size)), Vector2Scale(Vector2One(), buffer->size), BLACK);
                     drawShape++;
@@ -72,13 +83,15 @@ void draw_ammo(struct ammo *buffer, int *counter){ //draw bullet.
     }
     if(i > 0){
         buffer--;
-        if(!(buffer->alive)) (*counter)--;
+        if(!(buffer->alive)) p->ammo_buffer.last--;
     }
 }
 
-void add_ammo(struct ammo bullet, struct ammo *buffer, int counter){
+void add_ammo(plane *p, ammo bullet){
+    ammo *buffer = p->ammo_buffer.buffer;
+    p->ammo_buffer.last++;
     int i = 0;
-    while(i < counter){
+    while(i < p->ammo_buffer.last){
         i++;
         if(!(buffer->alive)){
             *buffer = bullet;
@@ -92,20 +105,17 @@ int main(void){
     //core
     const int screenWidth = 1600;
     const int screenHeight = 900;
+    InitWindow(screenWidth, screenHeight, "ShooThemUp");
+    SetTargetFPS(60);
 
     //player
     Vector2 playerIntPosition = {800, 450};
     const int playerSize = 10;
     const int speed = 3;
-
-    //ammo
-    const int ammoSize = 10;
-    InitWindow(screenWidth, screenHeight, "ShooThemUp");    
-
-    SetTargetFPS(60);
-    
+        
     //draw player
-    struct plane player;
+    //set player shape and properties
+    plane player;
     player.shootCD = 0;
     memset(&(player.shape), 0, sizeof(player.shape)); //clean memory
     Vector2 myPlane[25] = {{0, -1}, {1, 0}, {-1, 0}, {0, 1}, {-1, 1}, {1, 1}, {-2, 2}, {-1, 2}, {0, 2}, {1, 2}, {2, 2}}; //compound literals saves our day
@@ -113,10 +123,8 @@ int main(void){
     player.position = playerIntPosition;
 
     //ammo section
-    struct ammo ammoBuffer[100];
-    struct ammo *bp = ammoBuffer;
-    memset(&(ammoBuffer), 0, sizeof(ammoBuffer)); //clean ammoBufferMemory
-    int ammoBufferCounter = 0;
+    player.ammo_buffer.last = 0;
+    memset(player.ammo_buffer.buffer, 0, sizeof(player.ammo_buffer.buffer)); //clean ammo_buffer_memory
 
     //main windows
     while (!WindowShouldClose()){
@@ -132,8 +140,7 @@ int main(void){
         if(IsKeyDown(KEY_Z)) {
             if(player.shootCD == 0){
                 player.shootCD = 10;
-                ammoBufferCounter++;
-                add_ammo(shoot(player.position, 3, 10, -135.0f, 10), ammoBuffer, ammoBufferCounter);
+                add_ammo(&player, shoot(player.position, 3, 10, -135.0f, 10));
             }
         }
         if(IsKeyDown(KEY_X)){
@@ -152,7 +159,7 @@ int main(void){
             }
 
             // ammo draw section
-            draw_ammo(ammoBuffer, &ammoBufferCounter);          
+            draw_ammo(&player);          
 
         EndDrawing();
     }
