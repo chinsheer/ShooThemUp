@@ -5,7 +5,6 @@
 
 Vector2 myAmmoShape[9] = {{0, -1}};
 
-
 typedef struct ammo
 {
     int alive;
@@ -188,20 +187,9 @@ int main(void){
 
             ClearBackground(RAYWHITE);
             // player draw section
-            Vector2 *playerDrawPixel = player.shape;
-            DrawRectangleV(player.position, Vector2Scale(Vector2One(), playerSize), RED);
-            while (!Vector2Equals(*playerDrawPixel, Vector2Zero())){
-                DrawRectangleV(Vector2Add(player.position, Vector2Scale(*playerDrawPixel, playerSize)), Vector2Scale(Vector2One(), playerSize), BLACK);
-                playerDrawPixel++;
-            }
-
-            Vector2 *monsterDrawPixel = test_monster.shape;
-            DrawRectangleV(test_monster.position, Vector2Scale(Vector2One(), monsterSize), RED);
-            while (!Vector2Equals(*monsterDrawPixel, Vector2Zero())){
-                DrawRectangleV(Vector2Add(test_monster.position, Vector2Scale(*monsterDrawPixel, playerSize)), Vector2Scale(Vector2One(), monsterSize), BLACK);
-                monsterDrawPixel++;
-            }
-
+            plane_draw(player);
+            plane_draw(test_monster);
+            
             // ammo draw section
             draw_ammo(&player);          
             draw_ammo(&test_monster);
