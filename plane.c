@@ -15,9 +15,9 @@ plane plane_constructor(Vector2 *shape, int shape_size, int cd, Vector2 position
 
 void plane_draw(plane p){
     Vector2 *temp = p.shape;
-    DrawRectangleV(p.position, Vector2Scale(Vector2One(), p.size), RED);
+    DrawRectangleRec((Rectangle){p.position.x, p.position.y, p.size, p.size}, RED);
     while (!Vector2Equals(*temp, Vector2Zero())){
-        DrawRectangleV(Vector2Add(p.position, Vector2Scale(*temp, p.size)), Vector2Scale(Vector2One(), p.size), BLACK);
+        DrawRectangleRec((Rectangle){(temp->x * p.size) + p.position.x, (temp->y * p.size) + p.position.y , p.size, p.size}, BLACK);
         temp++;
     }
 }
@@ -48,7 +48,8 @@ void draw_ammo(plane *p){ //draw bullet.
                 buffer->shape.x = position.x;
                 buffer->shape.y = position.y;
                 //draw bullet and it shape
-                DrawRectanglePro(buffer->shape, (Vector2){buffer->shape.width/2, buffer->shape.height/2}, buffer->deg, BLACK);
+                if(buffer->if_circle) DrawCircle(buffer->shape.x, buffer->shape.y, buffer->size, BLACK);
+                else DrawRectanglePro(buffer->shape, (Vector2){buffer->shape.width/2, buffer->shape.height/2}, buffer->deg, BLACK);
             }
         }
         buffer++;
@@ -77,8 +78,15 @@ void add_ammo(plane *p, ammo bullet){
 bool check_collision(plane p, plane enemy){
     ammo *temp = enemy.ammo_buffer.buffer;
     for(int i = 0; i < enemy.ammo_buffer.last; i++){
-        if(temp->alive) if(CheckCollisionRecs((Rectangle){p.position.x - p.size/2, p.position.y - p.size/2, p.size, p.size}, temp->shape)) return true;
+        if(temp->alive) {
+            if(temp->if_circle){
+                if(CheckCollisionCircleRec((Vector2){temp->shape.x, temp->shape.y}, temp->size, (Rectangle){p.position.x, p.position.y, p.size, p.size})) return true;
+            }
+            else{
+                if(CheckCollisionRecs((Rectangle){p.position.x - p.size/2, p.position.y - p.size/2, p.size, p.size}, temp->shape)) return true;
+            }
+        }
         temp++;
-    }
+    } 
     return false;
 }

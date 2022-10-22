@@ -13,6 +13,7 @@ typedef struct ammo
     int dmg;
     int speed;
     int size;
+    bool if_circle;
 } ammo;
 
 typedef struct object_buffer
@@ -20,5 +21,5 @@ typedef struct object_buffer
     int last;
     ammo buffer[2000];
 } object_buffer;
-ammo shoot(Rectangle, int, int, float, int);
+ammo shoot(Rectangle, int, int, float, int, bool);
 
