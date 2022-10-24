@@ -43,14 +43,21 @@ int main(void){
     playerIntPosition, 
     playerSize);
 
+    //pattern_session
+    pattern_session pattern1_session;
+    pattern1_session.frame_end = 300;
+    pattern1_session.frame = 0;
+
     //main windows
     while (!WindowShouldClose()){
 
         //hitbox check
        
-        if(check_collision(player, test_monster)){
+        if(plane_check_collision(player, &(test_monster.ammo_buffer))){
             gameover = true;
         }
+
+        plane_health_decrease(&(test_monster), plane_check_collision(test_monster, &(player.ammo_buffer)));
 
         //control section
         if(IsKeyDown(KEY_RIGHT)) player.position.x += speed;
@@ -58,8 +65,8 @@ int main(void){
         if(IsKeyDown(KEY_UP)) player.position.y -= speed;
         if(IsKeyDown(KEY_DOWN)) player.position.y += speed;
         if(IsKeyDown(KEY_Z)) {
-            if(cooldown(&player)) {
-                add_ammo(&player, shoot((Rectangle){player.position.x + 5, player.position.y + 10,
+            if(plane_cooldown(&player)) {
+                add_ammo(&(player.ammo_buffer), shoot((Rectangle){player.position.x + 5, player.position.y + 10,
                  20, 10}, //shape of it
                  3, //speed
                  10, //damage
@@ -69,9 +76,9 @@ int main(void){
             }
         }
         if(IsKeyDown(KEY_X)){
-            if(cooldown(&test_monster)) {
+            /* if(cooldown(&test_monster)) {
                 for(int i = 0; i < 10; i++){
-                add_ammo(&test_monster, shoot((Rectangle){test_monster.position.x, test_monster.position.y, 
+                add_ammo(&(test_monster.ammo_buffer), shoot((Rectangle){test_monster.position.x, test_monster.position.y, 
                 20, 10}, //shape
                 2, //speed
                 10, //damage
@@ -79,23 +86,28 @@ int main(void){
                 10, //size
                 true)); //if circle
                 }
-            }
+            } */
             
         }
+
+        // monster section
+        monster_pattern1(&pattern1_session, &(test_monster.ammo_buffer), test_monster.position);
+
+
         BeginDrawing();
         if(!gameover){
             //test
 
             ClearBackground(RAYWHITE);
+
+            // ammo draw section
+            draw_ammo(&(player.ammo_buffer));          
+            draw_ammo(&(test_monster.ammo_buffer));
+
             // player draw section
             plane_draw(player);
             plane_draw(test_monster);
 
-            // ammo draw section
-            draw_ammo(&player);          
-            draw_ammo(&test_monster);
-
-        
         } else{
             break;
         }

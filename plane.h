@@ -8,11 +8,11 @@ typedef struct plane
     int size;
     int shootCD;
     int CD;
+    int health;
 
 } plane;
 plane plane_constructor(Vector2*, int, int, Vector2, int);
 void plane_draw(plane);
-int cooldown(plane*);
-void draw_ammo(plane*);
-void add_ammo(plane*, ammo);
-bool check_collision(plane, plane);
+int plane_cooldown(plane*);
+int plane_check_collision(plane, object_buffer*);
+bool plane_health_decrease(plane*, int);
