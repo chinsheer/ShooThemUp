@@ -7,6 +7,7 @@ plane plane_constructor(Vector2 *shape, int shape_size, int cd, Vector2 position
     temp.size = size;
     temp.shootCD = cd;
     temp.CD = 0;
+    temp.score = 0;
     memset(temp.shape, 0, sizeof(temp.shape));
     memset(temp.ammo_buffer.buffer, 0, sizeof(temp.ammo_buffer.buffer));
     memmove(temp.shape, shape, shape_size);
@@ -33,16 +34,19 @@ int plane_cooldown(plane *p){
 
 int plane_check_collision(plane p, object_buffer *ammo_buffer){
     int dmg = 0;
+    Rectangle hitbox = {p.hitbox.x * p.size + p.position.x, p.hitbox.y * p.size + p.position.y, p.hitbox.width * p.size, p.hitbox.height * p.size};
     ammo *temp = ammo_buffer->buffer;
     for(int i = 0; i < ammo_buffer->last; i++){
         if(temp->alive) {
             if(temp->if_circle){
-                if(CheckCollisionCircleRec((Vector2){temp->shape.x, temp->shape.y}, temp->size, (Rectangle){p.position.x, p.position.y, p.size, p.size})){
+                if(CheckCollisionCircleRec((Vector2){temp->shape.x, temp->shape.y}, temp->size, hitbox)){
+                    temp->alive = 0;
                     dmg += temp->dmg;
                 };
             }
             else{
-                if(CheckCollisionRecs((Rectangle){p.position.x - p.size/2, p.position.y - p.size/2, p.size, p.size}, temp->shape)){
+                if(CheckCollisionRecs(hitbox, temp->shape)){
+                    temp->alive = 0;
                     dmg += temp->dmg;
                 };
             }

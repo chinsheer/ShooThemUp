@@ -20,7 +20,7 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
   endif()
 endif()
 
-add_executable(ShooThemUp main.c ammo.c ammo.h plane.c plane.h main.h)
+add_executable(ShooThemUp main.c ammo.c ammo.h plane.c plane.h main.h gameplay.c gameplay.h)
 target_link_libraries(${PROJECT_NAME} raylib)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

@@ -8,13 +8,20 @@ int main(void){
     InitWindow(screenWidth, screenHeight, "ShooThemUp");
     SetTargetFPS(60);
 
+    //gameplay
+    gameUI UI;
+    UI.height = screenHeight;
+    UI.width = 400;
+    UI.font_size = 36;
+    UI.blackground_color = LIGHTGRAY;
+
     //player
-    Vector2 playerIntPosition = {800, 450};
+    Vector2 playerIntPosition = {600, 450};
     const int playerSize = 10;
     const int speed = 3;
 
     //monster
-    Vector2  monsterIntPosition = {800, 100};
+    Vector2  monsterIntPosition = {600, 100};
     const int monsterSize = 10;
 
     //draw monster
@@ -33,6 +40,10 @@ int main(void){
     40, //cd
     monsterIntPosition, 
     10);
+    test_monster.max_health = 200;
+    test_monster.health = 190;
+    plane *monster_buffer[2] = {&test_monster, 0};
+    test_monster.hitbox = (Rectangle){-4, -4, 9, 9};
         
     //draw player
     //set player shape and properties
@@ -42,6 +53,7 @@ int main(void){
     10, //cd
     playerIntPosition, 
     playerSize);
+    player.hitbox = (Rectangle){0, 0, 1, 1};
 
     //pattern_session
     pattern_session pattern1_session;
@@ -107,6 +119,10 @@ int main(void){
             // player draw section
             plane_draw(player);
             plane_draw(test_monster);
+
+            //ui_panel draw
+            gameUI_draw(UI, player, monster_buffer, screenWidth, screenHeight);
+            
 
         } else{
             break;
