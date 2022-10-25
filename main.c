@@ -2,6 +2,7 @@
 
 int main(void){
     //core
+    srand(time(NULL));
     bool gameover = false;
     const int screenWidth = 1600;
     const int screenHeight = 900;
@@ -18,7 +19,7 @@ int main(void){
     //player
     Vector2 playerIntPosition = {600, 450};
     const int playerSize = 10;
-    const int speed = 3;
+    const int speed = 2;
 
     //monster
     Vector2  monsterIntPosition = {600, 100};
@@ -56,9 +57,8 @@ int main(void){
     player.hitbox = (Rectangle){0, 0, 1, 1};
 
     //pattern_session
-    pattern_session pattern1_session;
-    pattern1_session.frame_end = 300;
-    pattern1_session.frame = 0;
+    pattern_session pattern_buffer[3] = {0};
+    pattern_buffer[0] = monster_pattern_make(300, monster_pattern1);
 
     //main windows
     while (!WindowShouldClose()){
@@ -72,10 +72,10 @@ int main(void){
         plane_health_decrease(&(test_monster), plane_check_collision(test_monster, &(player.ammo_buffer)));
 
         //control section
-        if(IsKeyDown(KEY_RIGHT)) player.position.x += speed;
-        if(IsKeyDown(KEY_LEFT)) player.position.x -= speed;
-        if(IsKeyDown(KEY_UP)) player.position.y -= speed;
-        if(IsKeyDown(KEY_DOWN)) player.position.y += speed;
+        if(IsKeyDown(KEY_RIGHT)) if(player.position.x + speed < screenWidth - UI.width) player.position.x += speed;
+        if(IsKeyDown(KEY_LEFT)) if(player.position.x - speed > 0) player.position.x -= speed;
+        if(IsKeyDown(KEY_UP)) if(player.position.y - speed > 0) player.position.y -= speed;
+        if(IsKeyDown(KEY_DOWN)) if(player.position.y + speed < screenHeight) player.position.y += speed;
         if(IsKeyDown(KEY_Z)) {
             if(plane_cooldown(&player)) {
                 add_ammo(&(player.ammo_buffer), shoot((Rectangle){player.position.x + 5, player.position.y + 10,
@@ -103,7 +103,10 @@ int main(void){
         }
 
         // monster section
-        monster_pattern1(&pattern1_session, &(test_monster.ammo_buffer), test_monster.position);
+        /* monster_pattern1(&pattern1_session, &(test_monster.ammo_buffer), test_monster.position, player.position);
+        monster_pattern2(&pattern2_session, &(test_monster.ammo_buffer), test_monster.position, player.position);
+        monster_pattern3(&pattern3_session, &(test_monster.ammo_buffer), test_monster.position, player.position); */
+        monster_pattern_run(pattern_buffer, 3, &(test_monster.ammo_buffer), test_monster.position, player.position);
 
 
         BeginDrawing();

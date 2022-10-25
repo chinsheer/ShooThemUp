@@ -62,9 +62,9 @@ void draw_ammo(object_buffer *ammo_buffer){ //draw bullet.
 
 //attack pattern
 
-void monster_pattern1(pattern_session *session, object_buffer *bullet_buffer, Vector2 pos){
-    if(session->frame <= session->frame_end && (session->frame % 30 == 0)){
-        int offset = floor(session->frame / 30);
+void monster_pattern1(object_buffer *bullet_buffer, Vector2 pos, Vector2 target, int *frame_end, int *frame){
+    if(*frame <= *frame_end && (*frame % 30 == 0)){
+        int offset = floor(*frame / 30);
         offset = offset >= 5 ? 10 - offset : offset;
         for(int i = 0; i < 20; i++){
             add_ammo(bullet_buffer, shoot((Rectangle){pos.x, pos.y, 20, 10},
@@ -75,5 +75,89 @@ void monster_pattern1(pattern_session *session, object_buffer *bullet_buffer, Ve
             true)); //if circle
         }
     }
-    session->frame++;
+    (*frame)++;
 }
+
+void monster_pattern2(object_buffer *bullet_buffer, Vector2 pos, Vector2 target, int *frame_end, int *frame){
+    if(*frame <= *frame_end && (*frame % 15 == 0)){
+        int offset = floor(*frame / 15);
+        for(int i = 0; i < 48; i++){
+            add_ammo(bullet_buffer, shoot((Rectangle){pos.x, pos.y, 20, 10},
+            2,
+            10,
+            7.5f*i + offset*5.0f,
+            10,
+            true));
+        }
+    }
+    (*frame)++;
+}
+
+void monster_pattern3(object_buffer *bullet_buffer, Vector2 pos, Vector2 target, int *frame_end, int *frame){
+    if(*frame <= *frame_end && (*frame % 10 == 0)){
+        int offset = floor(*frame / 2);
+        offset = offset % 150;
+        offset = offset >= 75 ? 150 - offset : offset;
+        for(int i = 0; i < 3; i++){
+        add_ammo(bullet_buffer, shoot((Rectangle){pos.x, pos.y, 20, 10},
+            3,
+            10,
+            offset + 45*i,
+            10,
+            true));
+        add_ammo(bullet_buffer, shoot((Rectangle){pos.x, pos.y, 20, 10},
+            3,
+            10,
+            90 - offset + 45*i,
+            10,
+            true));
+        }
+        
+    }
+    (*frame)++;
+}
+
+void monster_pattern_run(pattern_session *session_buffer, int size, object_buffer *bullet_buffer, Vector2 pos, Vector2 target){
+    pattern_session *index = session_buffer;
+    for(int i = 0; i < size; i++){
+        if(index->frame_end != 0){
+            if(index->frame_end <= index->frame){
+            switch(rand() % 3){
+                case 0:
+                    monster_pattern_add(session_buffer, monster_pattern_make(300, monster_pattern1), 3);
+                    break;
+                case 1:
+                    monster_pattern_add(session_buffer, monster_pattern_make(300, monster_pattern2), 3);
+                    break;
+                case 2:
+                    monster_pattern_add(session_buffer, monster_pattern_make(300, monster_pattern3), 3);
+                    break;
+            }
+            }
+            index->pattern(bullet_buffer, pos, target, &(index->frame_end), &(index->frame));
+        }
+    
+        index++;
+    }
+}
+
+pattern_session monster_pattern_make(int frame_end, void (*pattern)(object_buffer*, Vector2, Vector2, int*, int*)){
+    pattern_session temp;
+    temp.frame_end = frame_end;
+    temp.frame = 0;
+    temp.pattern = pattern;
+    return temp;
+}
+
+void monster_pattern_add(pattern_session *session_buffer, pattern_session session, int size){
+    pattern_session *index = session_buffer;
+    int i = 0;
+    while(i < size){
+        if(index->frame_end <= index->frame){
+            *index = session;
+            break;
+        }
+        index++;
+    }
+}
+
