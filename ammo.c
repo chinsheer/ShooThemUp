@@ -56,7 +56,6 @@ void draw_ammo(object_buffer *ammo_buffer){ //draw bullet.
         i++;
     }
     if(i > 0){
-        buffer--;
         while (!((--buffer)->alive)){
             (ammo_buffer->last)--;
         }

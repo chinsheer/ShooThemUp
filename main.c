@@ -118,7 +118,6 @@ int main(void){
             // ammo draw section
             draw_ammo(&(player.ammo_buffer));          
             draw_ammo(&(test_monster.ammo_buffer));
-            printf("%d \n", test_monster.ammo_buffer.last);
 
             // player draw section
             plane_draw(player);
