@@ -58,8 +58,8 @@ int plane_check_collision(plane p, object_buffer *ammo_buffer){
 
 bool plane_health_decrease(plane *p, int dmg){
     if(p->health <= dmg){
-        return false;
+        return true;
     }
     p->health -= dmg;
-    return true;
+    return false;
 }

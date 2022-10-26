@@ -81,8 +81,8 @@ void monster_pattern1(object_buffer *bullet_buffer, Vector2 pos, Vector2 target,
 }
 
 void monster_pattern2(object_buffer *bullet_buffer, Vector2 pos, Vector2 target, int *frame_end, int *frame){
-    if(*frame <= *frame_end && (*frame % 15 == 0)){
-        int offset = floor(*frame / 15);
+    if(*frame <= *frame_end && (*frame % 30 == 0)){
+        int offset = floor(*frame / 30);
         for(int i = 0; i < 48; i++){
             add_ammo(bullet_buffer, shoot((Rectangle){pos.x, pos.y, 20, 10},
             2,

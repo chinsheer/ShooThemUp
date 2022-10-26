@@ -3,7 +3,7 @@
 int main(void){
     //core
     srand(time(NULL));
-    bool gameover = false;
+    int screen = 0;
     const int screenWidth = 1600;
     const int screenHeight = 900;
     InitWindow(screenWidth, screenHeight, "ShooThemUp");
@@ -20,13 +20,19 @@ int main(void){
     Vector2 playerIntPosition = {600, 450};
     const int playerSize = 10;
     const int speed = 2;
+    Vector2 myPlane[] = {{0, -1}, {1, 0}, {-1, 0}, {0, 1}, {-1, 1}, {1, 1}, {-2, 2}, {-1, 2}, {0, 2}, {1, 2}, {2, 2}}; //compound literals saves our day
+    plane player = plane_constructor(myPlane, 
+    sizeof(myPlane), 
+    10, //cd
+    playerIntPosition, 
+    playerSize);
+    player.hitbox = (Rectangle){0, 0, 1, 1};
+    player.max_health = 10;
+    player.health = 10;
 
     //monster
     Vector2  monsterIntPosition = {600, 100};
     const int monsterSize = 10;
-
-    //draw monster
-    //set monster shape and properties
     Vector2 myMonster[] = {{4, -4}, {3, -4}, {2, -4}, {1, -4}, {0, -4}, {-1, -4}, {-2, -4}, {-3, -4}, {-4, -4}, 
     {4, -3}, {0, -3}, {-4, -3}, 
     {4, -2}, {0, -2}, {-4, -2}, 
@@ -42,20 +48,10 @@ int main(void){
     monsterIntPosition, 
     10);
     test_monster.max_health = 200;
-    test_monster.health = 190;
+    test_monster.health = 200;
     plane *monster_buffer[2] = {&test_monster, 0};
     test_monster.hitbox = (Rectangle){-4, -4, 9, 9};
-        
-    //draw player
-    //set player shape and properties
-    Vector2 myPlane[] = {{0, -1}, {1, 0}, {-1, 0}, {0, 1}, {-1, 1}, {1, 1}, {-2, 2}, {-1, 2}, {0, 2}, {1, 2}, {2, 2}}; //compound literals saves our day
-    plane player = plane_constructor(myPlane, 
-    sizeof(myPlane), 
-    10, //cd
-    playerIntPosition, 
-    playerSize);
-    player.hitbox = (Rectangle){0, 0, 1, 1};
-
+    
     //pattern_session
     pattern_session pattern_buffer[3] = {0};
     pattern_buffer[0] = monster_pattern_make(300, monster_pattern1);
@@ -65,11 +61,13 @@ int main(void){
 
         //hitbox check
        
-        /* if(plane_check_collision(player, &(test_monster.ammo_buffer))){
-            gameover = true;
-        } */
+        if(plane_health_decrease(&(player), plane_check_collision(player, &(test_monster.ammo_buffer)))){
+            //screen = 1;
+        }
 
-        plane_health_decrease(&(test_monster), plane_check_collision(test_monster, &(player.ammo_buffer)));
+        if(plane_health_decrease(&(test_monster), plane_check_collision(test_monster, &(player.ammo_buffer)))){
+            screen = 2;
+        }
 
         //control section
         if(IsKeyDown(KEY_RIGHT)) if(player.position.x + speed < screenWidth - UI.width) player.position.x += speed;
@@ -110,7 +108,7 @@ int main(void){
 
 
         BeginDrawing();
-        if(!gameover){
+        if(!(screen > 0)){
             //test
 
             ClearBackground(RAYWHITE);
@@ -132,12 +130,27 @@ int main(void){
         }
         EndDrawing();
     }
-    while (!WindowShouldClose()){
+    switch (screen)
+    {
+    case 1:
+        while (!WindowShouldClose()){
         BeginDrawing();
         ClearBackground(RAYWHITE);
         DrawText("LOL You suck.", 700, 400, 36, BLACK);
         EndDrawing();
+        }
+        break;
+    case 2:
+        while (!WindowShouldClose()){
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        DrawText("Finally you have beaten this demo", 500, 400, 36, BLACK);
+        EndDrawing();
+        }
+    default:
+        break;
     }
+    
     CloseWindow();
 
     return 0;
