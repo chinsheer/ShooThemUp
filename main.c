@@ -65,9 +65,9 @@ int main(void){
 
         //hitbox check
        
-        if(plane_check_collision(player, &(test_monster.ammo_buffer))){
+        /* if(plane_check_collision(player, &(test_monster.ammo_buffer))){
             gameover = true;
-        }
+        } */
 
         plane_health_decrease(&(test_monster), plane_check_collision(test_monster, &(player.ammo_buffer)));
 
@@ -118,13 +118,14 @@ int main(void){
             // ammo draw section
             draw_ammo(&(player.ammo_buffer));          
             draw_ammo(&(test_monster.ammo_buffer));
+            printf("%d \n", test_monster.ammo_buffer.last);
 
             // player draw section
             plane_draw(player);
             plane_draw(test_monster);
 
             //ui_panel draw
-            gameUI_draw(UI, player, monster_buffer, screenWidth, screenHeight);
+            gameUI_draw(UI, player, monster_buffer, screenWidth, screenHeight, &(test_monster.ammo_buffer));
             
 
         } else{

@@ -8,4 +8,4 @@ typedef struct gameUI{
 
 } gameUI;
 
-void gameUI_draw(gameUI, plane, plane**, int, int);
+void gameUI_draw(gameUI, plane, plane**, int, int, object_buffer*);

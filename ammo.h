@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef struct ammo
 {
@@ -21,7 +22,7 @@ typedef struct ammo
 typedef struct object_buffer
 {
     int last;
-    ammo buffer[2000];
+    ammo buffer[1000];
 } object_buffer;
 
 typedef struct pattern_session

@@ -18,16 +18,17 @@ ammo shoot(Rectangle shape, int speed, int dmg, float angle, int size, bool if_c
 
 void add_ammo(object_buffer *ammo_buffer, ammo bullet){
     ammo *buffer = ammo_buffer->buffer;
-    ammo_buffer->last++;
     int i = 0;
     while(i < ammo_buffer->last){
         i++;
         if(!(buffer->alive)){
             *buffer = bullet;
-            break;
+            return;
         }
         buffer++;
     }
+    *buffer = bullet;
+    ammo_buffer->last++;
 }
 
 void draw_ammo(object_buffer *ammo_buffer){ //draw bullet.
@@ -56,7 +57,9 @@ void draw_ammo(object_buffer *ammo_buffer){ //draw bullet.
     }
     if(i > 0){
         buffer--;
-        if(!(buffer->alive)) ammo_buffer->last--;
+        while (!((--buffer)->alive)){
+            (ammo_buffer->last)--;
+        }
     }
 }
 
